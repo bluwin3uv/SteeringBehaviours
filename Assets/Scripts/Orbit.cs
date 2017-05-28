@@ -27,9 +27,17 @@ public class Orbit : MonoBehaviour {
         x = angles.x;
         y = angles.y;
 	}
-	
-	void LateUpdate ()
+
+    void LateUpdate()
     {
+        if (y > 90)
+        {
+            y = 90;
+        }
+        if (y <= 2)
+        {
+            y = 2;
+        }
         float scroll = Input.GetAxis("Mouse ScrollWheel") * zoomSpeed;
 	    if(Camera.main.orthographic)
         {

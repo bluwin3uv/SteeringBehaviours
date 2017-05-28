@@ -2,120 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AIAgent : MonoBehaviour
+public class AiAgent : MonoBehaviour
 {
-    public Transform target;
-    public float speed = 20f;
-    public float stoppingDist = 0;
-    private graph grap;
-    private float remaningDistance = 0;
-    private List<Node> path;
-
+    public Vector3 force;
+    public Vector3 velocity;
+    public float maxVelo;
+    private SteeringBehaviour[] behaviours;
 	void Start ()
     {
-        grap = FindObjectOfType<graph>();
-        if (grap == null)
-        {
-            Debug.LogError("ERROR: No generated graph found");
-            Debug.Break();
-        }	
+        behaviours = GetComponents<SteeringBehaviour>();
 	}
-	
+
 	void Update ()
     {
-        remaningDistance = Vector3.Distance(transform.position, target.position);
-        if(remaningDistance >= stoppingDist)
-        {
-            path = RunAstar(transform.position, target.position);
-            if(path.Count > 0)
-            {
-                grap.path = path;
-                Node current = path[0];
-                transform.position = Vector3.MoveTowards(transform.position, current.position, speed * Time.deltaTime);
-            }
-        }
+        ComputeForces();
+        ApplyVelocity();
 	}
 
-    public List<Node> RunAstar(Vector3 startPos, Vector3 targetPos)
+    void ComputeForces()
     {
-        List<Node> openList = new List<Node>();
-        HashSet<Node> clostedList = new HashSet<Node>();
-        Node startNode = grap.GetNodeFromPosition(startPos);
-        Node targetNode = grap.GetNodeFromPosition(targetPos);
-        openList.Add(startNode);
-        while(openList.Count > 0)
+        force = Vector3.zero;
+        for(int i = 0; i < behaviours.Length;i++)
         {
-            Node currentNode = FindShortestNode(openList);
-            openList.Remove(currentNode);
-            clostedList.Add(currentNode);
-            if(currentNode == targetNode)
+            if(behaviours[i].enabled == false)
             {
-                path = RetracePath(startNode, targetNode);
-                return path;
+                continue;
             }
-            foreach(Node neighbour in grap.GetNeighbours(currentNode))
+            force = force + behaviours[i].GetForce();
+            if(force.magnitude > maxVelo)
             {
-                if(!neighbour.walkable || clostedList.Contains(neighbour))
-                {
-                    continue;
-                }
-                int newCostToNeighbour = currentNode.gCost + GetHeuristic(currentNode, neighbour);
-                if(newCostToNeighbour < neighbour.gCost || !openList.Contains(neighbour))
-                {
-                    neighbour.gCost = newCostToNeighbour;
-                    neighbour.hCost = GetHeuristic(neighbour, targetNode);
-                    neighbour.parent = currentNode;
-                    if(!openList.Contains(neighbour))
-                    {
-                        openList.Add(neighbour);
-                    }
-                }
+                force = force.normalized * maxVelo;
+                break;
             }
         }
-        return path;
-    }
-    Node FindShortestNode(List<Node> nodelist)
-    {
-        Node shortest = null;
-        float minFCost = float.MaxValue;
-        float minHcost = float.MaxValue;
-        for(int i = 0; i < nodelist.Count; i++)
-        {
-            Node currentNode = nodelist[i];
-            if (currentNode.fCost <= minFCost)
-            { 
-                if(currentNode.hCost <= minHcost)
-                { 
-                    minFCost = currentNode.fCost;
-                    minHcost = currentNode.hCost;
-                    shortest = currentNode;
-                }
-            }
-        }
-        return shortest; 
     }
 
-    int GetHeuristic(Node nodeA, Node nodeB)
+    void ApplyVelocity()
     {
-        int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
-        int dstZ = Mathf.Abs(nodeA.gridZ - nodeB.gridZ);
-        if (dstX > dstZ)
+        velocity = velocity + force * Time.deltaTime;
+        if(velocity.magnitude > maxVelo)
         {
-            return 14 * dstZ + 10 * (dstX - dstZ);
+            velocity = velocity.normalized * maxVelo;
         }
-        return 14 * dstX + 10 * (dstZ - dstX);
-    }
-
-    List<Node> RetracePath(Node start, Node end)
-    {
-        List<Node> path = new List<Node>();
-        Node currentNode = end;
-        while(currentNode != start)
+        if(velocity.magnitude > 0)
         {
-            path.Add(currentNode);
-            currentNode = currentNode.parent;
+            transform.position = transform.position + velocity * Time.deltaTime;
+            transform.rotation = Quaternion.LookRotation(velocity);
         }
-        path.Reverse();
-        return path;        
     }
 }
