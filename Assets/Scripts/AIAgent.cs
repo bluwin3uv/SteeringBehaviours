@@ -45,7 +45,7 @@ public class AiAgent : MonoBehaviour
             velocity = velocity.normalized * maxVelo;
         }
         if(velocity.magnitude > 0)
-        {
+        {  
             transform.position = transform.position + velocity * Time.deltaTime;
             transform.rotation = Quaternion.LookRotation(velocity);
         }
