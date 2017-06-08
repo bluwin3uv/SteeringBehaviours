@@ -49,9 +49,10 @@ public class SpawnerXML : MonoBehaviour
     {
         spawner = GetComponent<Spawner>();
         fullPath = Application.dataPath + "/" + fileName + ".xml";
-        if(fullPath != null)
+        if (File.Exists(fullPath)) 
         {
             xmlContainer = Load(fullPath);
+            Apply();
         }
     }
 
