@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<XMLContainer xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <data>
+    <SpawnData>
+      <position>
+        <x>-0.6500265</x>
+        <y>-0.03345126</y>
+        <z>4.259119</z>
+      </position>
+      <rotation>
+        <x>0</x>
+        <y>-0.2501556</y>
+        <z>0</z>
+        <w>0.9682057</w>
+        <eulerAngles>
+          <x>0</x>
+          <y>331.02655</y>
+          <z>0</z>
+        </eulerAngles>
+      </rotation>
+    </SpawnData>
+  </data>
+</XMLContainer>

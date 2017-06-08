@@ -64,5 +64,4 @@ public class Wander : SteeringBehaviour
         #endregion
         return force;
     }
-
 }
